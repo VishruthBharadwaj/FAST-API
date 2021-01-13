@@ -1,0 +1,11 @@
+version:'3.8'
+
+services:
+    web:
+
+        build: .
+        ports:
+            - "8000:8000"
+        command: hypercorn main:app --bind 0.0.0.0:8000 -k hypercorn.workers.HypercornWorker
+        expose:
+          - 8000

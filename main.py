@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-app=FastAPI()
-import json
+import requests
 
+
+import json
+app=FastAPI()
 
 
 db=[]
@@ -12,10 +14,11 @@ class City(BaseModel):
 	name:str
 	timezone:str
 class Employee(BaseModel):
-	name:str
-	age:int
-	salary:int
 	id:int
+	employee_name:str
+	employee_age:int
+	employee_salary:int
+	
 
 
 @app.get('/')
@@ -27,7 +30,11 @@ def get_cities():
 	results = []
 	for city in db:
 		r=requests.get(f'http://worldtimeapi.org/api/timezone/{city["timezone"]}')
-		current_time = r.json()['datetime']
+		
+		current_time = r.json().get('data')
+		#['datetime']
+		print(current_time)
+		
 		
 		results.append({'name': city['name'], 'timezone':city['timezone'], 'current_time':current_time})
 	return results
@@ -43,10 +50,22 @@ def get_city(city_id: int):
 def get_employee():
 	results = []
 	r=requests.get(f'http://dummy.restapiexample.com/api/v1/employees')
+	print(r.status_code)
 	current = r.json().get('data')
+	
 	print(current)
 	return current
-
+@app.get('/alldata')
+def get_allemployeedata():
+	
+	
+	
+	q=requests.get(f'http://dummy.restapiexample.com/api/v1/employees')	
+	print(q.status_code)
+	currents = q.json().get('data')	
+	db.append(currents)
+		
+	return currents
 @app.post('/employee')
 def create_employee(employee:Employee):
 	print(employee)
